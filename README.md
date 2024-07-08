@@ -94,4 +94,4 @@ If you run run.sh, you could whether its active to listing jobs or not
 
 ![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/70d370f1-398b-4f52-82ea-55cadd37b7fe)
 
-
+Now Azure DevOps can assign any work to the Agent machine. So ==
