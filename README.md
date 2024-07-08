@@ -1,4 +1,4 @@
-# AzureDevOps-CICD-Pipeline-Selfhosted
+# To Deploy Artifacts on the Self-Hosted Environment using AzureDevOps CICD Pipeline
 
 **To create a virtual machine in Azure Cloud**
 
@@ -111,5 +111,50 @@ name it as Self Hosted Environment and update the Pipeline name as CICD Pipeline
 ![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/b13d6b7f-90d3-4504-87a2-74fc1aa22343)
 
 Job added, but task not yet added. I will add it soon.
+
+Now click on the task - Click on the Agent Job
+
+![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/801e4568-df06-458d-91ae-31062b48c2b4)
+
+```
+Display name - Agent job
+Agent pool - Default //Because we have given Agent Pool name as Default while I configure in Agent machine
+Leave others as default and save it
+```
+
+Go back the Pipeline and Add an Artifacts. 
+
+//If you need to know how to configure Artifacts, please go through below document to know and configure.
+
+```
+https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline
+```
+
+Add an Artifact
+
+```
+Source type - Build
+Project - mydevops
+Source (build pipeline) - kohlidevops.DevopsBasics (2)
+Default version - Latest
+Source alias - _kohlidevops.DevopsBasics (2)
+Add it - Save the Pipeline
+```
+
+I have successfully added the Artifacts and Release Pipeline as you can see the image below.
+
+![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/04737c1e-fd93-4604-8341-fb2ed7a6b1d8)
+
+Just create Release Pipeline to check whether Artifacts are deployed on the target machine.
+
+![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/65176ff7-ecb9-48ca-b022-57aad11ab4d7)
+
+It has been deployed and job is successfully running.
+
+![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/d7b8c54c-2f3f-451f-bf66-8a27660f3017)
+
+If I check the Agent machine, and check the downloaded path.
+
+![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/9eb90503-88de-4e88-b63c-8f9899ac999e)
 
 
