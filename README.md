@@ -94,4 +94,22 @@ If you run run.sh, you could whether its active to listing jobs or not
 
 ![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/70d370f1-398b-4f52-82ea-55cadd37b7fe)
 
-Now Azure DevOps can assign any work to the Agent machine. So ==
+Now Azure DevOps can assign any work to the Agent machine.
+
+To create a new Release Pipeline
+
+Navigate to dev.azure.com - choose Pipelines - new Release Pipeline
+
+![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/104e54d6-a436-4045-883d-77e80f632b0e)
+
+Pipeline stage - It should be a empty job (Because we are going to deploy the Artiofacts to on self-hosted environment).
+
+![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/9ee0e6cc-1094-47f7-8e29-1544ed8fd826)
+
+name it as Self Hosted Environment and update the Pipeline name as CICD Pipeline Self Hosted
+
+![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/b13d6b7f-90d3-4504-87a2-74fc1aa22343)
+
+Job added, but task not yet added. I will add it soon.
+
+
