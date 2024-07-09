@@ -151,10 +151,135 @@ Just create Release Pipeline to check whether Artifacts are deployed on the targ
 
 It has been deployed and job is successfully running.
 
+You can check the Artifact logs in dev.azure.com console.
+
+```
+2024-07-08T15:59:04.4867017Z ##[section]Starting: Download artifact - _kohlidevops.DevopsBasics (2) - warfile
+2024-07-08T15:59:04.5102643Z ==============================================================================
+2024-07-08T15:59:04.5103426Z Task         : Download build artifacts
+2024-07-08T15:59:04.5103722Z Description  : Download files that were saved as artifacts of a completed build
+2024-07-08T15:59:04.5103886Z Version      : 0.239.1
+2024-07-08T15:59:04.5104118Z Author       : Microsoft Corporation
+2024-07-08T15:59:04.5104376Z Help         : https://docs.microsoft.com/azure/devops/pipelines/tasks/utility/download-build-artifacts
+2024-07-08T15:59:04.5104578Z ==============================================================================
+2024-07-08T15:59:08.8275520Z Downloading artifacts for build: 29
+2024-07-08T15:59:08.8289490Z Downloading items from container resource #/25916366/warfile
+2024-07-08T15:59:08.8738379Z Downloading artifact warfile from: https://dev.azure.com/myorganization1109//_apis/resources/Containers/25916366?itemPath=warfile&isShallow=true&api-version=4.1-preview.4
+2024-07-08T15:59:08.8739428Z Prefer downloading files through redirect to the content stitcher: true
+2024-07-08T15:59:08.8748381Z Downloading warfile/webapp/target/webapp.war to /home/slakshminarayanan/myagent/_work/r1/a/_kohlidevops.DevopsBasics (2)/warfile/webapp/target/webapp.war
+2024-07-08T15:59:08.8748755Z Downloaded warfile/webapp/target/webapp.war to /home/slakshminarayanan/myagent/_work/r1/a/_kohlidevops.DevopsBasics (2)/warfile/webapp/target/webapp.war
+2024-07-08T15:59:08.8750786Z Total Files: 1, Processed: 1, Skipped: 0, Failed: 0, Download time: 1.009 secs, Download size: 1573Bytes
+2024-07-08T15:59:09.6135919Z Successfully downloaded artifacts to /home/slakshminarayanan/myagent/_work/r1/a/_kohlidevops.DevopsBasics (2)/
+2024-07-08T15:59:09.6180375Z ##[section]Finishing: Download artifact - _kohlidevops.DevopsBasics (2) - warfile
+```
+
+Its downloading warfile/webapp/target/webapp.war to /home/slakshminarayanan/myagent/_work/r1/a/_kohlidevops.DevopsBasics (2)/warfile/webapp/target/webapp.war
+
+```
+r1 - release directory
+a - artifact directory
+```
+
 ![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/d7b8c54c-2f3f-451f-bf66-8a27660f3017)
 
 If I check the Agent machine, and check the downloaded path.
 
 ![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/9eb90503-88de-4e88-b63c-8f9899ac999e)
 
+**To deploy application or artifact to configured Local agents if any build changes**
 
+**To install Tomcat 9 on target agent machine**
+
+SSH to ubuntu22 machine and perform below commands
+
+```
+sudo apt-get update -y
+sudo apt-get upgrade -y
+sudo apt-get install zip unzip net-tools -y
+sudo apt install default-jdk -y
+cd /tmp
+wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.91/bin/apache-tomcat-9.0.91.tar.gz  (or) // https://tomcat.apache.org/download-90.cgi -> binary -> core -> tar.gz file
+sudo mkdir /opt/tomcat
+sudo tar xzvf apache-tomcat-9*tar.gz -C /opt/tomcat --strip-components=1
+sudo chown ubuntu:ubuntu /opt/tomcat
+sudo chmod +x /opt/tomcat/bin/*.sh
+```
+
+**To create a service for tomcat**
+
+```
+sudo nano /etc/systemd/system/tomcat.service
+
+[Unit]
+Description=Apache Tomcat Web Application Container
+After=network.target
+[Service]
+Type=forking
+User=ubuntu
+Group=ubuntu
+Environment="JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64"
+Environment="CATALINA_HOME=/opt/tomcat"
+Environment="CATALINA_PID=/opt/tomcat/temp/tomcat.pid"
+Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+[Install]
+WantedBy=multi-user.target
+
+To reload and start the service
+
+sudo systemctl daemon-reload
+sudo systemctl start tomcat
+sudo systemctl status tomcat
+netstat -tnpl   //To ensure the tomcat listening port
+```
+
+Now I can able to access the tomcat default webpage with below URL
+
+<img width="845" alt="image" src="https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/a306796a-70b0-4f63-84c7-ebdc0e3488db">
+
+Now we have to copy the artifatcs from the r1/a/ directory to deploy this artifatcs to the agent machine. For this we need to create a one more stage with empty job in the Release Pipeline.
+
+Navigate to your Release Pipeline and Edit the Pipeline to add the new stage with empty job and name it as CopyWARFileToSelfHostedEnvironment
+
+![image](https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/5f1e8354-acf0-4511-815d-0c74db6f6ee8)
+
+Your Agent Job should be mapped to 'Agent selection - Default'   //Because we have used Default while we installed Agent on target machine
+
+```
+Display name - Agent job
+Agent Pool - Default
+Leave others as default and save this Agent job
+```
+
+<img width="682" alt="image" src="https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/777e905d-daa4-49bf-8cd0-f736ac9ef6ce">
+
+Click on the task and choose '+' symbol in the Agent job - Your Task would be 'Command Line'
+
+Go to your Command Line script and add the below commands to work on it
+
+```
+sudo cd /home/slakshminarayanan/myagent/_work/r1/a/_kohlidevops.DevopsBasics\ \(2\)/warfile/webapp/target/   //This is my artifact directory
+sudo cp webapp.war /opt/tomcat/webapps/
+sudo systemctl restart tomcat.service
+```
+
+<img width="784" alt="image" src="https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/243cac3a-24e8-4170-9451-d9e4ed82caa9">
+
+Now save your Pipeline and trigger a Release Pipeline to deploy the Artifatcs to Agent machine and this app expose to the external world using tomcaqt service.
+
+<img width="767" alt="image" src="https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/6c7b1aba-522b-415e-9a8e-f9281aecb6f8">
+
+Edit the Pipeline - Create release
+
+<img width="800" alt="image" src="https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/d12a6eca-ce4e-479c-bfa9-7b7ffaf9612b">
+
+My Release Pipeline has succeeded and its deployed Artifacts to the Agent machine.
+
+<img width="731" alt="image" src="https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/26610c3a-22e8-4cf3-8cf7-c71822f328bb">
+
+If I check with my Agent machine URL, I can see the java application through the browser
+
+<img width="823" alt="image" src="https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/0b3ec55d-c415-4620-ba34-8a5b4185e3e8">
+
+That's it!
