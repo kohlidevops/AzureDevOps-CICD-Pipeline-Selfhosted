@@ -1,5 +1,7 @@
 # To Deploy Artifacts on the Self-Hosted Environment using AzureDevOps CICD Pipeline
 
+<img width="591" alt="image" src="https://github.com/kohlidevops/AzureDevOps-CICD-Pipeline-Selfhosted/assets/100069489/e5daf4bd-faed-450f-8552-1ece752ffc07">
+
 **To create a virtual machine in Azure Cloud**
 
 Navigate to portal.azure.com - Then create a new VM with ubuntu22 image
